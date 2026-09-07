@@ -29,7 +29,7 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
 
 FIELD_LENGTH = 120.0        # including both end zones
-FIELD_WIDTH = 53.3          # 160 ft; the real value is 53.33, the data uses 53.3
+FIELD_WIDTH = 160.0 / 3     # 53.333 yd = 160 ft exactly 
 END_ZONE = 10.0
 GOAL_LEFT = END_ZONE        # x = 10
 GOAL_RIGHT = FIELD_LENGTH - END_ZONE   # x = 110
@@ -112,6 +112,7 @@ def plot_tracking_frame(
     frame,
     ax: Axes | None = None,
     *,
+    draw_pitch: bool = True,
     label_players: bool = True,
     show_direction: bool = True,
     title: str | None = None,
@@ -120,8 +121,15 @@ def plot_tracking_frame(
 
     `frame` needs columns `player`, `x`, `y`; `dir` is used for heading arrows
     if present. Team comes from the first character of `player` (H/V).
+
+    Passing an existing `ax` still draws the field on it - set
+    `draw_pitch=False` to overlay onto an axes that already has one, e.g. when
+    animating successive ticks.
     """
-    ax = draw_field(ax) if ax is None else ax
+    if ax is None:
+        ax = draw_field()
+    elif draw_pitch:
+        draw_field(ax)
 
     for _, r in frame.iterrows():
         team = str(r["player"])[0]
